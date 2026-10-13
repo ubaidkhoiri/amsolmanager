@@ -1,0 +1,9 @@
+{
+  "brand": "src/routes/jig/brand.amsolmanager.css",
+  "surfaces": [
+    {
+      "match": "/",
+      "mode": "product"
+    }
+  ]
+}

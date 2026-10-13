@@ -1,0 +1,96 @@
+/* mode.product.css — vendored from Jig v0.8.1.
+     Licensed Apache-2.0. LICENSE and NOTICE ship beside the jig skill.
+     Edit freely: `jig update` will not overwrite a file you have changed. */
+
+/* mode.product.css — authenticated app UI, dashboards, settings.
+   Serves BOTH first and repeat use. Predictability over novelty.
+   Spacing uses the shared 8pt option set; modes SELECT options, they do not invent values.
+   Load with exactly one brand file. */
+
+:root {
+  --mode: "product";
+
+  /* ---- Shared spacing options (8pt base). Identical in every mode. ---- */
+  /* 2xs is a deliberate half-step off the 8pt grid. It exists ONLY for gaps
+     inside a single component — label→input, icon→label — where 8px reads as
+     a separation rather than a pairing. Never for layout. */
+  --spacing-2xs: 4px;
+  --spacing-xs:  8px;
+  --spacing-s:   16px;
+  --spacing-m:   24px;
+  --spacing-l:   32px;
+  --spacing-xl:  48px;
+  --spacing-xxl: 80px;
+
+
+  /* ---- This mode's selections ---- */
+  /* ---- Type scale — 1.200 Minor Third. ----
+     Mid scale: the general-purpose default.
+     Line heights UNITLESS. FLOOR: 1.5 for body and long-form text. */
+  --text-caption: 14px;  --leading-caption: 1.5;
+  --text-body:    16px;  --leading-body:    1.5;
+  --text-prose:   18px;  --leading-prose:   1.6;    /* LONG-FORM text only */
+  --text-lead:    20px;  --leading-lead:    1.5;
+
+  /* H1 and H2 are FLUID: they interpolate with viewport width instead of
+     switching at a breakpoint, which is why this system defines no breakpoint
+     token. Each clamp is the line through (360px viewport, min) and (1024px,
+     max); outside that range it saturates at the bounds.
+
+     The `rem` term is not decoration. `clamp(32px, 8vw, 48px)` would ignore a
+     reader who has set a larger default font size — page zoom scales `vw`, a
+     font-size preference does not — which fails WCAG 1.4.4. Keeping every term
+     in `rem` plus `vw` means the whole curve moves with the user's setting.
+
+     Only headings. Body and prose stay fixed: readability is absolute, set by
+     the eye and viewing distance, while heading size is relative — it exists to
+     contrast with body, and that contrast can compress on a narrow screen. A
+     fluid `--text-prose` would also breach the 18px floor (B-75, T20).
+
+     The minimums land on rungs the ladder already has rather than on new
+     values. Line heights are unitless, so they follow the size for free. */
+  --text-h3:      20px;  --leading-h3:      1.4;
+  --text-h2:      clamp(1.25rem, 1.114rem + 0.602vw, 1.5rem);  --leading-h2: 1.333;  /* 20 → 24 */
+  --text-h1:      clamp(1.5rem, 1.229rem + 1.205vw, 2rem);     --leading-h1: 1.25;   /* 24 → 32 */
+
+  --font-weight-regular: 400;
+  --font-weight-bold:    600;
+
+  --tracking-body: 0;  --tracking-h2: -0.01em;  --tracking-h1: -0.015em;
+  --tracking-caps: 0.06em;
+
+  --measure-prose: 60ch;
+
+  --spacing-section:        var(--spacing-xl);    /* 48 */
+  --spacing-section-sm:     var(--spacing-l);     /* 32 */
+  --spacing-card:           var(--spacing-m);     /* 24 */
+  --spacing-stack:          var(--spacing-s);     /* 16 */
+  --spacing-group:          var(--spacing-xs);    /*  8 */
+  --spacing-label:          var(--spacing-2xs);  /*  4 — label to its input */
+  --spacing-inline:         var(--spacing-xs);    /*  8 */
+  --spacing-heading-before: var(--spacing-l);     /* 32 */
+  --spacing-heading-after:  var(--spacing-xs);    /*  8 */
+
+  --grid-columns: 12;      --grid-columns-sm: 4;
+  --grid-gutter:  var(--spacing-m);   --grid-gutter-sm: var(--spacing-s);   /* 24 → 16 */
+  --grid-margin:  var(--spacing-l);   --grid-margin-sm: var(--spacing-s);   /* 32 → 16 */
+
+  --size-control: 40px;  --size-control-sm: 32px;  --size-row: 48px;
+  --size-touch-target: 48px;  --size-icon: 18px;
+
+  --border-width-control: var(--border-width-hairline);
+  --radius-control: var(--radius-sm);  --radius-surface: var(--radius-md);
+  --shadow-surface: var(--shadow-none);
+
+  --duration-fast: 100ms;  --duration-base: 150ms;  --duration-slow: 200ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* No ambient duration tokens here, deliberately. Ambient motion is
+     editorial only (P-13) — a surface someone works in all day must not
+     have anything moving on it that they did not cause. */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-fast: 1ms; --duration-base: 1ms; --duration-slow: 1ms; }
+}

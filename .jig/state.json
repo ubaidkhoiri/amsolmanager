@@ -1,0 +1,12 @@
+{
+  "version": "0.8.1",
+  "modes": [
+    "product"
+  ],
+  "files": {
+    "src/routes/jig/brand.amsolmanager.css": "sha256:d5e51c1782a80cda21164f40a8e72ffd5552d626f824e0d379926f7ae5e9f183",
+    "jig.config.json": "sha256:c5b9321899f7bccb8b82eeeecb07a58555ea6135ba345a6e6dd0a563b3f8cd85",
+    "src/routes/jig/mode.product.css": "sha256:c033f891a71376425a14e22fb955e66d33af5b0bce72626f7dac9c8ed8db61fd",
+    "src/routes/jig/theme.css": "sha256:793c69d719aaa59df6acd46a6a57fecda1ab17e59c33cca73613a6721e16dcb2"
+  }
+}

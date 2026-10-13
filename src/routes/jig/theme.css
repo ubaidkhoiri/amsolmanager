@@ -1,0 +1,8 @@
+/* theme.css — vendored from Jig v0.8.1.
+     Licensed Apache-2.0. LICENSE and NOTICE ship beside the jig skill.
+     Edit freely: `jig update` will not overwrite a file you have changed. */
+
+/* The token layer for one surface, in one import.
+   Brand declares the options; the mode selects from them. */
+@import "./brand.amsolmanager.css";
+@import "./mode.product.css";
