@@ -1,59 +1,68 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import StatusBadge from '../../lib/components/StatusBadge.svelte';
+	import {
+		DECISION_STATUS,
+		MEETING_STATUS,
+		MEETING_TYPE,
+		TASK_STATUS
+	} from '../../lib/status-labels';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
-<main class="mx-auto w-full max-w-xl px-4 py-10">
-	<h1 class="text-2xl font-bold">Beranda</h1>
+<main class="page">
+	<h1 class="page-title">Beranda</h1>
 	{#if data.actor}
-		<p class="mt-2 text-sm">Halo {data.actor.name}.</p>
+		<p class="meta">Halo {data.actor.name}.</p>
 
-		<nav class="mt-4 flex flex-wrap gap-2 text-sm">
-			<a class="border px-3 py-2 underline" href={resolve('/app/meetings')}>Musyawarah</a>
-			<a class="border px-3 py-2 underline" href={resolve('/app/tasks')}>Tugas</a>
-			<a class="border px-3 py-2 underline" href={resolve('/app/support')}>Bantuan</a>
-			<a class="border px-3 py-2 underline" href={resolve('/app/finance')}>Keuangan</a>
-			<a class="border px-3 py-2 underline" href={resolve('/app/timeline')}>Timeline</a>
-			<a class="border px-3 py-2 underline" href={resolve('/app/publications')}>Publikasi</a>
-			{#if data.actor.systemRole === 'MOD'}
-				<a class="border px-3 py-2 underline" href={resolve('/app/members')}>Anggota</a>
-			{/if}
-		</nav>
-
-		<section class="mt-6">
-			<h2 class="font-semibold">Agenda terdekat</h2>
+		<section aria-labelledby="agenda">
+			<h2 id="agenda" class="section-title">Agenda terdekat</h2>
 			{#if data.upcoming.length === 0}
-				<p class="mt-1 text-sm">Tidak ada agenda terjadwal.</p>
+				<div class="empty">
+					<p>Belum ada agenda terjadwal.</p>
+					<p class="meta">Jadwal baru muncul di sini setelah musyawarah dibuat.</p>
+				</div>
 			{:else}
-				<ul class="mt-2 flex flex-col gap-2">
+				<ul class="list-plain">
 					{#each data.upcoming as m (m.id)}
-						<li class="border px-3 py-2 text-sm">
+						<li class="card">
 							<a class="font-semibold underline" href={resolve('/app/meetings/[id]', { id: m.id })}>
 								{m.title}
 							</a>
-							<p class="text-xs">
-								[{m.status}]{m.startsAt ? `, ${m.startsAt.slice(0, 16).replace('T', ' ')}` : ''}
+							<p class="meta">
+								{MEETING_TYPE[m.meetingType] ?? m.meetingType}{m.startsAt
+									? `, ${m.startsAt.slice(0, 16).replace('T', ' ')}`
+									: ''}
 							</p>
+							<p class="mt-1"><StatusBadge map={MEETING_STATUS} code={m.status} /></p>
 						</li>
 					{/each}
 				</ul>
 			{/if}
 		</section>
 
-		<section class="mt-6">
-			<h2 class="font-semibold">Tugasku</h2>
+		<section aria-labelledby="tugas">
+			<h2 id="tugas" class="section-title">Tugas saya</h2>
 			{#if data.myTasks.length === 0}
-				<p class="mt-1 text-sm">Tidak ada tugas aktif.</p>
+				<div class="empty">
+					<p>Tidak ada tugas aktif.</p>
+					<p class="meta">Tugas baru muncul di sini setelah ditugaskan ke kamu.</p>
+				</div>
 			{:else}
-				<ul class="mt-2 flex flex-col gap-2">
+				<ul class="list-plain">
 					{#each data.myTasks as t (t.id)}
-						<li class="border px-3 py-2 text-sm">
+						<li class="card">
 							<a class="font-semibold underline" href={resolve('/app/tasks')}>{t.title}</a>
-							<p class="text-xs">
-								[{t.status}]{#if t.overdue}
-									[TERLAMBAT]{/if}{t.dueAt ? `, ${t.dueAt.slice(0, 16).replace('T', ' ')}` : ''}
+							<p class="meta">
+								{t.dueAt ? `Tenggat ${t.dueAt.slice(0, 16).replace('T', ' ')}` : 'Tanpa tenggat'}
+							</p>
+							<p class="mt-1 flex flex-wrap gap-1">
+								<StatusBadge map={TASK_STATUS} code={t.status} />
+								{#if t.overdue}
+									<StatusBadge label="Terlambat" tone="error" />
+								{/if}
 							</p>
 						</li>
 					{/each}
@@ -61,23 +70,27 @@
 			{/if}
 		</section>
 
-		<section class="mt-6">
-			<h2 class="font-semibold">Keputusan final terbaru</h2>
+		<section aria-labelledby="keputusan">
+			<h2 id="keputusan" class="section-title">Keputusan final terbaru</h2>
 			{#if data.recentDecisions.length === 0}
-				<p class="mt-1 text-sm">Belum ada keputusan final.</p>
+				<div class="empty">
+					<p>Belum ada keputusan final.</p>
+					<p class="meta">Keputusan final musyawarah muncul di sini.</p>
+				</div>
 			{:else}
-				<ul class="mt-2 flex flex-col gap-2">
+				<ul class="list-plain">
 					{#each data.recentDecisions as d (d.id)}
-						<li class="border px-3 py-2 text-sm">
+						<li class="card">
 							<a
 								class="font-semibold underline"
 								href={resolve('/app/meetings/[id]', { id: d.meetingId })}
 							>
 								{d.title}
 							</a>
-							<p class="text-xs">
-								[v{d.version}]{d.decidedAt ? `, ${d.decidedAt.slice(0, 10)}` : ''}
+							<p class="meta">
+								Versi {d.version}{d.decidedAt ? `, ${d.decidedAt.slice(0, 10)}` : ''}
 							</p>
+							<p class="mt-1"><StatusBadge map={DECISION_STATUS} code="FINAL" /></p>
 						</li>
 					{/each}
 				</ul>

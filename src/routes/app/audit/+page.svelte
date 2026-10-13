@@ -4,25 +4,28 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<main class="mx-auto w-full max-w-xl px-4 py-10">
-	<h1 class="text-2xl font-bold">Audit log</h1>
-	<p class="mt-2 text-sm">Append-only. 200 entri terbaru.</p>
+<main class="page">
+	<h1 class="page-title">Audit log</h1>
+	<p class="meta">Append-only. 200 entri terbaru.</p>
 	{#if data.logs.length === 0}
-		<p class="mt-4 text-sm">Belum ada aktivitas sensitif.</p>
+		<div class="empty mt-4">
+			<p>Belum ada aktivitas sensitif.</p>
+			<p class="meta">Perubahan sensitif tercatat di sini.</p>
+		</div>
 	{:else}
-		<ul class="mt-4 flex flex-col gap-2 text-sm">
+		<ul class="list-plain mt-4">
 			{#each data.logs as l (l.at + l.action + l.entity)}
-				<li class="border px-3 py-2">
+				<li class="card">
 					<p class="font-semibold">{l.action} {l.entity}</p>
-					<p class="text-xs">{l.at}</p>
+					<p class="meta">{l.at}</p>
 					{#if l.reason}
-						<p class="text-xs">Alasan: {l.reason}</p>
+						<p class="meta">Alasan: {l.reason}</p>
 					{/if}
 					{#if l.before}
-						<p class="mt-1 text-xs">Sebelum: {l.before}</p>
+						<p class="meta mt-1">Sebelum: {l.before}</p>
 					{/if}
 					{#if l.after}
-						<p class="text-xs">Sesudah: {l.after}</p>
+						<p class="meta">Sesudah: {l.after}</p>
 					{/if}
 				</li>
 			{/each}

@@ -4,18 +4,18 @@
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 </script>
 
-<main class="mx-auto w-full max-w-md px-4 py-10">
-	<h1 class="text-2xl font-bold">Masuk GenAwards</h1>
-	<p class="mt-2 text-sm">Pilih nama kamu lalu isi kode akses sesuai role.</p>
+<main class="page">
+	<h1 class="page-title">Masuk GenAwards</h1>
+	<p class="meta">Pilih nama kamu lalu isi kode akses sesuai role.</p>
 
 	{#if form?.error}
-		<p role="alert" class="mt-4 border px-3 py-2 text-sm">{form.error}</p>
+		<p role="alert" class="form-error mt-4">{form.error}</p>
 	{/if}
 
 	<form method="post" action="?/login" class="mt-6 flex flex-col gap-4">
-		<label class="flex flex-col gap-1 text-sm">
+		<label class="field">
 			Nama anggota
-			<select name="memberId" required class="min-h-11 border px-3 py-2">
+			<select name="memberId" required class="input">
 				<option value="">Pilih nama</option>
 				{#each data.members as m (m.id)}
 					<option value={m.id}
@@ -24,16 +24,10 @@
 				{/each}
 			</select>
 		</label>
-		<label class="flex flex-col gap-1 text-sm">
+		<label class="field">
 			Kode akses
-			<input
-				name="code"
-				type="password"
-				required
-				autocomplete="current-password"
-				class="min-h-11 border px-3 py-2"
-			/>
+			<input name="code" type="password" required autocomplete="current-password" class="input" />
 		</label>
-		<button type="submit" class="min-h-11 border px-4 py-2 font-semibold">Masuk</button>
+		<button type="submit" class="btn btn-primary">Masuk</button>
 	</form>
 </main>

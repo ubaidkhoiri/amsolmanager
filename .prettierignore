@@ -11,3 +11,6 @@ bun.lockb
 # Generated
 /drizzle/
 /worker-configuration.d.ts
+/.jig/
+/jig.config.json
+/src/routes/jig/

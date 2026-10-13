@@ -39,6 +39,7 @@ export const load: PageServerLoad = async (event) => {
 			id: m.id,
 			title: m.title,
 			status: m.status,
+			meetingType: m.meetingType,
 			startsAt: m.startsAt?.toISOString() ?? null
 		})),
 		myTasks: myTasks.slice(0, 5).map((t) => ({

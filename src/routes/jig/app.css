@@ -1,0 +1,247 @@
+/* Komponen aplikasi di atas token Jig. Nama semantik saja, tanpa nilai mentah (H-47).
+   Aturan: P-02 tombol, P-03 field, C-20 status ganda sinyal, A-07 radius per ukuran,
+   A-08 tanpa shadow, E-28 state, E-29 fokus, D-24 judul milik konten bawah. */
+
+@layer base {
+	body {
+		background-color: var(--color-bg-base);
+		color: var(--color-text-strong);
+		font-size: var(--text-body);
+		line-height: var(--leading-body);
+	}
+
+	:focus-visible {
+		outline: var(--focus-ring-width) solid var(--color-focus);
+		outline-offset: var(--focus-ring-offset);
+	}
+}
+
+@layer components {
+	.page {
+		margin-inline: auto;
+		width: 100%;
+		max-width: 40rem;
+		padding-inline: var(--spacing-m);
+		padding-bottom: var(--spacing-section);
+	}
+
+	.page-title {
+		margin-top: var(--spacing-heading-before);
+		margin-bottom: var(--spacing-heading-after);
+		font-size: var(--text-h2);
+		line-height: var(--leading-h2);
+		font-weight: var(--font-weight-bold);
+		color: var(--color-text-strong);
+	}
+
+	.section-title {
+		margin-top: var(--spacing-xl);
+		margin-bottom: var(--spacing-s);
+		font-size: var(--text-h3);
+		line-height: var(--leading-h3);
+		font-weight: var(--font-weight-bold);
+		color: var(--color-text-strong);
+	}
+
+	.card {
+		background-color: var(--color-bg-raised);
+		border: 1px solid var(--color-stroke-weak);
+		border-radius: var(--radius-surface);
+		padding: var(--spacing-card);
+	}
+
+	.list-plain {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-group);
+		margin-top: var(--spacing-s);
+	}
+
+	/* Tombol: satu bentuk, bobot beda struktur (P-02, E-91, E-93). */
+	.btn {
+		display: inline-flex;
+		min-height: var(--size-touch-target);
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-xs);
+		border-radius: var(--radius-control);
+		padding-inline: var(--spacing-m);
+		font-size: var(--text-body);
+		font-weight: var(--font-weight-bold);
+	}
+
+	.btn-primary {
+		background-color: var(--color-brand);
+		color: var(--color-on-brand);
+	}
+
+	.btn-primary:hover {
+		background-color: var(--color-state-hover);
+	}
+
+	.btn-primary:active {
+		background-color: var(--color-state-press);
+	}
+
+	.btn-secondary:active {
+		background-color: var(--color-state-press);
+	}
+
+	.btn-tertiary:hover {
+		background-color: var(--color-state-hover);
+	}
+
+	.btn-tertiary:active {
+		background-color: var(--color-state-press);
+	}
+
+	.btn:disabled {
+		opacity: var(--opacity-disabled);
+		cursor: not-allowed;
+	}
+
+	.btn-secondary {
+		border: 1px solid var(--color-brand);
+		color: var(--color-text-brand);
+		background-color: transparent;
+	}
+
+	.btn-secondary:hover {
+		background-color: var(--color-state-hover);
+	}
+
+	.btn-tertiary {
+		min-height: var(--size-touch-target);
+		color: var(--color-text-brand);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.btn-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-m);
+		align-items: center;
+	}
+
+	/* Field: label di atas, dekat input (P-03, F-98). */
+	.field {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-label);
+		font-size: var(--text-body);
+	}
+
+	.field > .input {
+		margin-top: 0;
+	}
+
+	.input {
+		min-height: var(--size-touch-target);
+		width: 100%;
+		border: 1px solid var(--color-stroke-strong);
+		border-radius: var(--radius-control);
+		background-color: var(--color-bg-raised);
+		color: var(--color-text-strong);
+		padding-inline: var(--spacing-s);
+		padding-block: var(--spacing-xs);
+	}
+
+	.hint {
+		font-size: var(--text-caption);
+		color: var(--color-text-weak);
+	}
+
+	.form-error {
+		border: 1px solid var(--color-stroke-error-strong);
+		background-color: var(--color-fill-error);
+		color: var(--color-text-error);
+		border-radius: var(--radius-control);
+		padding: var(--spacing-s);
+		font-size: var(--text-body);
+	}
+
+	/* Badge status: pil, fill lembut plus teks (C-20, C-68, A-07). */
+	.badge {
+		display: inline-block;
+		border-radius: var(--radius-full);
+		padding-inline: var(--spacing-s);
+		padding-block: var(--spacing-2xs);
+		font-size: var(--text-caption);
+		font-weight: var(--font-weight-bold);
+		white-space: nowrap;
+	}
+
+	.badge[data-tone='neutral'] {
+		background-color: var(--color-fill);
+		color: var(--color-text-strong);
+	}
+
+	.badge[data-tone='info'] {
+		background-color: var(--color-fill-info);
+		color: var(--color-text-info);
+	}
+
+	.badge[data-tone='success'] {
+		background-color: var(--color-fill-success);
+		color: var(--color-text-success);
+	}
+
+	.badge[data-tone='warning'] {
+		background-color: var(--color-fill-warning);
+		color: var(--color-text-warning);
+	}
+
+	.badge[data-tone='error'] {
+		background-color: var(--color-fill-error);
+		color: var(--color-text-error);
+	}
+
+	.meta {
+		font-size: var(--text-caption);
+		color: var(--color-text-weak);
+	}
+
+	.empty {
+		border: 1px dashed var(--color-stroke-strong);
+		border-radius: var(--radius-surface);
+		padding: var(--spacing-card);
+	}
+
+	.numeral {
+		font-feature-settings: var(--font-numeric-features);
+	}
+
+	/* Navigasi bawah: label selalu tampil, posisi tetap (E-63). */
+	.bottomnav {
+		position: sticky;
+		bottom: 0;
+		background-color: var(--color-bg-raised);
+		border-top: 1px solid var(--color-stroke-weak);
+	}
+
+	.bottomnav-list {
+		display: flex;
+		margin-inline: auto;
+		width: 100%;
+		max-width: 40rem;
+	}
+
+	.bottomnav-link {
+		flex: 1 1 0;
+		display: flex;
+		min-height: var(--size-touch-target);
+		align-items: center;
+		justify-content: center;
+		font-size: var(--text-caption);
+		color: var(--color-text-weak);
+		text-decoration: none;
+	}
+
+	.bottomnav-link[aria-current='page'] {
+		color: var(--color-text-brand);
+		font-weight: var(--font-weight-bold);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+}
