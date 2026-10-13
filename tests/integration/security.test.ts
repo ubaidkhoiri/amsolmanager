@@ -1,6 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { eq, inArray } from 'drizzle-orm';
 import {
@@ -28,15 +25,7 @@ import { supportRequests } from '../../src/lib/server/db/schema/support-requests
 import { tasks } from '../../src/lib/server/db/schema/tasks';
 import { summarizeBudget, summarizeLedger } from '../../src/lib/finance';
 
-function loadDatabaseUrl(): string {
-	const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-	const line = fs
-		.readFileSync(path.join(root, '.env'), 'utf8')
-		.split('\n')
-		.find((l) => l.startsWith('DATABASE_URL='));
-	if (!line) throw new Error('.env tanpa DATABASE_URL, integrasi batal');
-	return line.slice('DATABASE_URL='.length).replace(/^"|"$/g, '').trim();
-}
+import { loadDatabaseUrl } from './db-url';
 
 let db: Db;
 let eventId = '';

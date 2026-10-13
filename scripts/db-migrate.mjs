@@ -8,15 +8,19 @@ const projectRoot = path.resolve(scriptsDir, '..');
 const drizzleDir = path.join(projectRoot, 'drizzle');
 const journal = JSON.parse(fs.readFileSync(path.join(drizzleDir, 'meta', '_journal.json'), 'utf8'));
 
-const envLine = fs
-	.readFileSync(path.join(projectRoot, '.env'), 'utf8')
-	.split('\n')
-	.find((l) => l.startsWith('DATABASE_URL='));
-if (!envLine) {
-	console.error('migrate fail: DATABASE_URL missing in .env');
-	process.exit(1);
+// MIGRATE_URL menang bila ada (untuk staging), kalau tidak .env DATABASE_URL.
+let url = (process.env.MIGRATE_URL ?? '').replace(/^"|"$/g, '').trim();
+if (!url) {
+	const envLine = fs
+		.readFileSync(path.join(projectRoot, '.env'), 'utf8')
+		.split('\n')
+		.find((l) => l.startsWith('DATABASE_URL='));
+	if (!envLine) {
+		console.error('migrate fail: MIGRATE_URL kosong dan DATABASE_URL missing in .env');
+		process.exit(1);
+	}
+	url = envLine.slice('DATABASE_URL='.length).replace(/^"|"$/g, '').trim();
 }
-const url = envLine.slice('DATABASE_URL='.length).replace(/^"|"$/g, '').trim();
 const sql = neon(url);
 
 await sql`CREATE TABLE IF NOT EXISTS schema_migrations (filename text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())`;

@@ -26,13 +26,17 @@ Script membaca journal `drizzle/meta/_journal.json` dan mencatat di tabel `schem
 
 ## Backup dan restore (Neon)
 
-1. Di dashboard Neon pilih project, buka tab Backups atau Branches.
-2. Pastikan Point-in-Time Recovery aktif sesuai paket. Catat retensi yang berlaku.
-3. Sebelum tiap perubahan besar (migrasi berisiko, impor massal), buat branch dari titik saat itu sebagai snapshot manual.
-4. Uji restore: buat branch dari backup, arahkan DATABASE_URL lokal ke branch itu, jalankan smoke. Jangan uji restore di database produksi.
-5. Bila restore produksi diperlukan, lakukan dari dashboard Neon (restore ke titik waktu atau promosikan branch), lalu redeploy worker dan cek `/api/health`.
+## Backup dan restore (Neon, teruji 2026-10-13)
 
-Penanggung jawab restore: MOD teknis yang memegang akses Neon dan Cloudflare.
+Project `amsolmanager` paket free. Retensi point-in-time 6 jam. Branch tetap: `production` (default) dan `staging` (salinan untuk tes dan coba migrasi).
+
+1. Sebelum tiap perubahan besar (migrasi berisiko, impor massal), buat branch snapshot manual: `npx neonctl branches create --project-id restless-recipe-46829563 --name pra-rilis-TANGGAL --parent production`.
+2. Tes integrasi selalu lawan staging. `.env` wajib ada `TEST_DATABASE_URL` (connection string branch staging). Tanpa itu tes fallback ke produksi, jangan jalankan.
+3. Migrasi ke staging dulu: `MIGRATE_URL=<staging-cs> node scripts/db-migrate.mjs`. Script idempoten, sudah teruji skip 7 file di staging.
+4. Uji restore yang sudah terbukti jalan: sisip marker di staging, catat T0, `branches restore restore-test staging@T0`, marker hilang di branch restore (0) dan tetap ada di staging (1). Bersihkan marker dan hapus branch uji.
+5. Bila restore produksi diperlukan: `branches restore production production@<ISO-dalam-6-jam>` atau dari dashboard, lalu redeploy worker dan cek `/api/health`. Jangan restore tanpa snapshot branch dulu.
+
+Penanggung jawab restore: MOD teknis yang memegang akses Neon dan Cloudflare. Login CLI: `npx neonctl auth`.
 
 ## Deploy
 
