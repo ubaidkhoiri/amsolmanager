@@ -49,6 +49,25 @@ export const SUPPORT_TRANSITIONS: Record<string, string[]> = {
 	CANCELLED: []
 };
 
+// Timeline statuses are our choice, spec only says items have a status.
+export const TIMELINE_TRANSITIONS: Record<string, string[]> = {
+	PLANNED: ['IN_PROGRESS', 'CANCELLED'],
+	IN_PROGRESS: ['DONE', 'CANCELLED'],
+	DONE: [],
+	CANCELLED: []
+};
+
+// Approval gate: REVIEW becomes APPROVED only through an authorized approver,
+// enforced in permissions, not here. PUBLISHED needs a post link at the route.
+export const PUBLICATION_TRANSITIONS: Record<string, string[]> = {
+	IDEA: ['DRAFT', 'CANCELLED'],
+	DRAFT: ['REVIEW', 'CANCELLED'],
+	REVIEW: ['APPROVED', 'DRAFT', 'CANCELLED'],
+	APPROVED: ['PUBLISHED', 'CANCELLED'],
+	PUBLISHED: [],
+	CANCELLED: []
+};
+
 // Planning tasks (BACKLOG) may lack PIC and deadline. Anything past planning must have both.
 export function taskRequiresAssigneeAndDue(status: string): boolean {
 	return status !== 'BACKLOG';

@@ -107,3 +107,41 @@ export function canAdvanceSupport(actor: Actor, request: SupportScope, to: strin
 			return false;
 	}
 }
+
+export interface TimelineScope {
+	divisionId: string | null;
+}
+
+export function canManageTimeline(actor: Actor, item: TimelineScope): boolean {
+	if (actor.systemRole === 'MOD') return true;
+	if (actor.systemRole !== 'DIVISION_ADMIN' || actor.divisionId === null) return false;
+	return item.divisionId !== null && item.divisionId === actor.divisionId;
+}
+
+export interface PublicationScope {
+	divisionId: string;
+	designOwnerId: string | null;
+	copyOwnerId: string | null;
+}
+
+// MOD and the owning division admin drive the whole flow. Assigned owners
+// move their own content up to review, approval stays with the authorized.
+export function canAdvancePublication(actor: Actor, pub: PublicationScope, to: string): boolean {
+	if (actor.systemRole === 'MOD') return true;
+	const isAdmin =
+		actor.systemRole === 'DIVISION_ADMIN' &&
+		actor.divisionId !== null &&
+		actor.divisionId === pub.divisionId;
+	const isOwner = actor.memberId === pub.designOwnerId || actor.memberId === pub.copyOwnerId;
+	switch (to) {
+		case 'DRAFT':
+		case 'REVIEW':
+			return isAdmin || isOwner;
+		case 'APPROVED':
+		case 'PUBLISHED':
+		case 'CANCELLED':
+			return isAdmin;
+		default:
+			return false;
+	}
+}

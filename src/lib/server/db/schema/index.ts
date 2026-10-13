@@ -8,3 +8,10 @@ export { minuteItems, minuteStatusEnum } from './minute-items';
 export { decisions, decisionStatusEnum } from './decisions';
 export { tasks, taskPriorityEnum, taskStatusEnum } from './tasks';
 export { supportRequests, supportStatusEnum } from './support-requests';
+export {
+	timelineItems,
+	timelineCategoryEnum,
+	timelineStatusEnum,
+	TIMELINE_CATEGORY_LABELS
+} from './timeline';
+export { publications, publicationStatusEnum } from './publications';

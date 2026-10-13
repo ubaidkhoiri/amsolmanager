@@ -4,11 +4,14 @@ import {
 	DECISION_TRANSITIONS,
 	isTaskOverdue,
 	MEETING_TRANSITIONS,
+	PUBLICATION_TRANSITIONS,
 	SUPPORT_TRANSITIONS,
 	taskRequiresAssigneeAndDue,
-	TASK_TRANSITIONS
+	TASK_TRANSITIONS,
+	TIMELINE_TRANSITIONS
 } from '../../src/lib/workflow';
 import {
+	canAdvancePublication,
 	canAdvanceSupport,
 	canEditDecision,
 	canFinalizeDecision,
@@ -176,5 +179,36 @@ describe('support permissions', () => {
 		expect(canAdvanceSupport(committee, { ...req, requestedBy: 'm-other' }, 'CANCELLED')).toBe(
 			false
 		);
+	});
+});
+
+describe('timeline and publication transitions', () => {
+	it('walks planned to done', () => {
+		expect(canTransition(TIMELINE_TRANSITIONS, 'PLANNED', 'IN_PROGRESS')).toBe(true);
+		expect(canTransition(TIMELINE_TRANSITIONS, 'IN_PROGRESS', 'DONE')).toBe(true);
+		expect(canTransition(TIMELINE_TRANSITIONS, 'DONE', 'PLANNED')).toBe(false);
+	});
+
+	it('walks idea to published with review loop', () => {
+		expect(canTransition(PUBLICATION_TRANSITIONS, 'IDEA', 'DRAFT')).toBe(true);
+		expect(canTransition(PUBLICATION_TRANSITIONS, 'DRAFT', 'REVIEW')).toBe(true);
+		expect(canTransition(PUBLICATION_TRANSITIONS, 'REVIEW', 'DRAFT')).toBe(true);
+		expect(canTransition(PUBLICATION_TRANSITIONS, 'REVIEW', 'APPROVED')).toBe(true);
+		expect(canTransition(PUBLICATION_TRANSITIONS, 'APPROVED', 'PUBLISHED')).toBe(true);
+		expect(canTransition(PUBLICATION_TRANSITIONS, 'DRAFT', 'PUBLISHED')).toBe(false);
+	});
+});
+
+describe('publication permissions', () => {
+	const pub = { divisionId: 'div-a', designOwnerId: 'm-c', copyOwnerId: null };
+	it('lets admin approve, owner only reach review', () => {
+		expect(canAdvancePublication(adminA, pub, 'APPROVED')).toBe(true);
+		expect(canAdvancePublication(adminA, pub, 'PUBLISHED')).toBe(true);
+		expect(canAdvancePublication(committee, pub, 'REVIEW')).toBe(true);
+		expect(canAdvancePublication(committee, pub, 'APPROVED')).toBe(false);
+		expect(canAdvancePublication(committee, { ...pub, designOwnerId: 'm-other' }, 'REVIEW')).toBe(
+			false
+		);
+		expect(canAdvancePublication(mod, pub, 'PUBLISHED')).toBe(true);
 	});
 });

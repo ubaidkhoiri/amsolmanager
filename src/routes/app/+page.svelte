@@ -14,6 +14,8 @@
 			<a class="border px-3 py-2 underline" href={resolve('/app/meetings')}>Musyawarah</a>
 			<a class="border px-3 py-2 underline" href={resolve('/app/tasks')}>Tugas</a>
 			<a class="border px-3 py-2 underline" href={resolve('/app/support')}>Bantuan</a>
+			<a class="border px-3 py-2 underline" href={resolve('/app/timeline')}>Timeline</a>
+			<a class="border px-3 py-2 underline" href={resolve('/app/publications')}>Publikasi</a>
 			{#if data.actor.systemRole === 'MOD'}
 				<a class="border px-3 py-2 underline" href={resolve('/app/members')}>Anggota</a>
 			{/if}
