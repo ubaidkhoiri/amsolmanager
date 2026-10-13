@@ -2,7 +2,11 @@
 	"extends": "$app/tsconfig",
 	"compilerOptions": {
 		"strict": true,
+		// svelte-check otherwise type-checks emitted JS under .svelte-kit/output.
+		// src contains no .js files, so no coverage is lost.
+		"checkJs": false,
 		"types": ["$app/types", "node", "./worker-configuration.d.ts"]
 	},
-	"include": ["src", "vite.config.ts"]
+	"include": ["src", "vite.config.ts"],
+	"exclude": [".svelte-kit", "build", "drizzle", "node_modules"]
 }
