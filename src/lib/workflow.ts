@@ -1,4 +1,4 @@
-// Status transition rules for Sprint 2 entities (PRD FR-03, FR-04, FR-05).
+// Status transition rules for Sprint 2 and 3 entities (PRD FR-03 through FR-06).
 // Framework-free so unit tests cover them without SvelteKit.
 
 export const MEETING_TRANSITIONS: Record<string, string[]> = {
@@ -35,6 +35,19 @@ export function canTransition(
 ): boolean {
 	return (transitions[from] ?? []).includes(to);
 }
+
+// A request becomes real work only after the target division accepts it.
+// NEEDS_INFORMATION bounces back to the requester, who resubmits to review.
+export const SUPPORT_TRANSITIONS: Record<string, string[]> = {
+	SUBMITTED: ['UNDER_REVIEW', 'CANCELLED'],
+	UNDER_REVIEW: ['ACCEPTED', 'NEEDS_INFORMATION', 'REJECTED', 'CANCELLED'],
+	NEEDS_INFORMATION: ['UNDER_REVIEW', 'CANCELLED'],
+	ACCEPTED: ['IN_PROGRESS', 'CANCELLED'],
+	IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
+	COMPLETED: [],
+	REJECTED: [],
+	CANCELLED: []
+};
 
 // Planning tasks (BACKLOG) may lack PIC and deadline. Anything past planning must have both.
 export function taskRequiresAssigneeAndDue(status: string): boolean {

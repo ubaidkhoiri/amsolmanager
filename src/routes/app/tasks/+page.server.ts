@@ -20,6 +20,7 @@ export const load: PageServerLoad = async (event) => {
 	const actor = requireActor(event);
 	const db = getDb(event.platform?.env as Record<string, string | undefined> | undefined);
 	const base = [eq(tasks.eventId, actor.eventId), ne(tasks.status, 'CANCELLED')];
+	const divisionFilter = event.url.searchParams.get('division')?.trim() || null;
 	const scopeFilter =
 		actor.systemRole === 'MOD'
 			? and(...base)
@@ -31,11 +32,14 @@ export const load: PageServerLoad = async (event) => {
 		db.query.divisions.findMany({ where: eq(divisions.eventId, actor.eventId) }),
 		db.query.members.findMany()
 	]);
+	if (divisionFilter && !allDivisions.some((d) => d.id === divisionFilter))
+		throw error(400, 'Filter divisi tidak valid.');
+	const visible = divisionFilter ? rows.filter((t) => t.divisionId === divisionFilter) : rows;
 	const divisionName = new Map(allDivisions.map((d) => [d.id, d.name]));
 	const memberName = new Map(allMembers.map((m) => [m.id, m.name]));
 	return {
 		actor,
-		tasks: rows.map((t) => ({
+		tasks: visible.map((t) => ({
 			id: t.id,
 			title: t.title,
 			description: t.description,
@@ -49,7 +53,9 @@ export const load: PageServerLoad = async (event) => {
 			canManage: canManageTask(actor, { divisionId: t.divisionId, assignedTo: t.assignedTo }),
 			nextStatuses: TASK_TRANSITIONS[t.status] ?? []
 		})),
-		members: allMembers.map((m) => ({ id: m.id, name: m.name }))
+		members: allMembers.map((m) => ({ id: m.id, name: m.name })),
+		divisions: allDivisions.map((d) => ({ id: d.id, name: d.name })),
+		selectedDivision: divisionFilter
 	};
 };
 

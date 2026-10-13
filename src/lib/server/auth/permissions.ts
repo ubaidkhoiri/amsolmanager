@@ -64,3 +64,46 @@ export function canManageTask(actor: Actor, task: TaskScope): boolean {
 	if (actor.systemRole === 'DIVISION_ADMIN') return task.divisionId === actor.divisionId;
 	return task.assignedTo !== null && task.assignedTo === actor.memberId;
 }
+
+export interface SupportScope {
+	requestingDivisionId: string;
+	targetDivisionId: string;
+	requestedBy: string;
+	status: string;
+}
+
+function supportSide(actor: Actor, request: SupportScope): 'requester' | 'target' | 'both' | null {
+	if (actor.systemRole === 'MOD') return 'both';
+	if (actor.systemRole !== 'DIVISION_ADMIN' || actor.divisionId === null) return null;
+	const isRequester = actor.divisionId === request.requestingDivisionId;
+	const isTarget = actor.divisionId === request.targetDivisionId;
+	if (isRequester && isTarget) return 'both';
+	if (isTarget) return 'target';
+	if (isRequester) return 'requester';
+	return null;
+}
+
+// MOD acts on any request. Admins act inside their division, either side.
+// Committee members only touch requests they filed themselves.
+export function canAdvanceSupport(actor: Actor, request: SupportScope, to: string): boolean {
+	if (actor.systemRole === 'COMMITTEE' && actor.memberId !== request.requestedBy) return false;
+	const rawSide = supportSide(actor, request);
+	// Committee filers act as requester side on their own request.
+	const side = actor.systemRole === 'COMMITTEE' ? 'requester' : rawSide;
+	if (side === null) return false;
+	switch (to) {
+		case 'UNDER_REVIEW':
+			// Target picks it up, or requester resubmits after adding info.
+			return side === 'target' || side === 'both' || actor.memberId === request.requestedBy;
+		case 'ACCEPTED':
+		case 'NEEDS_INFORMATION':
+		case 'REJECTED':
+		case 'IN_PROGRESS':
+		case 'COMPLETED':
+			return side === 'target' || side === 'both';
+		case 'CANCELLED':
+			return true;
+		default:
+			return false;
+	}
+}

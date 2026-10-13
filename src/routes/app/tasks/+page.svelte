@@ -7,6 +7,19 @@
 <main class="mx-auto w-full max-w-xl px-4 py-10">
 	<h1 class="text-2xl font-bold">Tugas</h1>
 
+	<form method="get" class="mt-4 flex items-center gap-2 text-sm">
+		<label>
+			Divisi
+			<select name="division" class="min-h-11 border px-3 py-2">
+				<option value="">Semua</option>
+				{#each data.divisions as d (d.id)}
+					<option value={d.id} selected={d.id === data.selectedDivision}>{d.name}</option>
+				{/each}
+			</select>
+		</label>
+		<button type="submit" class="min-h-11 border px-3 py-2">Filter</button>
+	</form>
+
 	{#if form?.error}
 		<p role="alert" class="mt-4 border px-3 py-2 text-sm">{form.error}</p>
 	{/if}

@@ -15,6 +15,13 @@
       "when": 1791886789771,
       "tag": "0001_brave_runaways",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791888389931,
+      "tag": "0002_fluffy_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

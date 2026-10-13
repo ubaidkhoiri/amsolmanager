@@ -7,3 +7,4 @@ export { meetings, meetingStatusEnum, meetingTypeEnum } from './meetings';
 export { minuteItems, minuteStatusEnum } from './minute-items';
 export { decisions, decisionStatusEnum } from './decisions';
 export { tasks, taskPriorityEnum, taskStatusEnum } from './tasks';
+export { supportRequests, supportStatusEnum } from './support-requests';

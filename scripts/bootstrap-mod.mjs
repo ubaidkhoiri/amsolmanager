@@ -33,13 +33,15 @@ if (events.length === 0) {
 }
 const eventId = events[0].id;
 
-const liveCodes = await sql`SELECT id FROM access_codes WHERE event_id = ${eventId} AND role = 'MOD' AND is_active = true`;
+const liveCodes =
+	await sql`SELECT id FROM access_codes WHERE event_id = ${eventId} AND role = 'MOD' AND is_active = true`;
 if (liveCodes.length > 0) {
 	console.error('bootstrap refuse: kode MOD aktif sudah ada, rotasi dari halaman Anggota');
 	process.exit(1);
 }
 
-let mods = await sql`SELECT id, name FROM members WHERE event_id = ${eventId} AND system_role = 'MOD' AND status = 'ACTIVE'`;
+let mods =
+	await sql`SELECT id, name FROM members WHERE event_id = ${eventId} AND system_role = 'MOD' AND status = 'ACTIVE'`;
 let memberId;
 if (mods.length > 0) {
 	memberId = mods[0].id;

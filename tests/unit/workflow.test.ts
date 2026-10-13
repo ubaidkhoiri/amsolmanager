@@ -4,10 +4,12 @@ import {
 	DECISION_TRANSITIONS,
 	isTaskOverdue,
 	MEETING_TRANSITIONS,
+	SUPPORT_TRANSITIONS,
 	taskRequiresAssigneeAndDue,
 	TASK_TRANSITIONS
 } from '../../src/lib/workflow';
 import {
+	canAdvanceSupport,
 	canEditDecision,
 	canFinalizeDecision,
 	canManageMeeting,
@@ -125,5 +127,54 @@ describe('task permissions', () => {
 	it('limits committee to assigned tasks', () => {
 		expect(canManageTask(committee, own)).toBe(true);
 		expect(canManageTask(committee, { divisionId: 'div-a', assignedTo: 'm-other' })).toBe(false);
+	});
+});
+
+describe('support transitions', () => {
+	it('walks submitted to completed with info loop', () => {
+		expect(canTransition(SUPPORT_TRANSITIONS, 'SUBMITTED', 'UNDER_REVIEW')).toBe(true);
+		expect(canTransition(SUPPORT_TRANSITIONS, 'UNDER_REVIEW', 'NEEDS_INFORMATION')).toBe(true);
+		expect(canTransition(SUPPORT_TRANSITIONS, 'NEEDS_INFORMATION', 'UNDER_REVIEW')).toBe(true);
+		expect(canTransition(SUPPORT_TRANSITIONS, 'UNDER_REVIEW', 'ACCEPTED')).toBe(true);
+		expect(canTransition(SUPPORT_TRANSITIONS, 'ACCEPTED', 'IN_PROGRESS')).toBe(true);
+		expect(canTransition(SUPPORT_TRANSITIONS, 'IN_PROGRESS', 'COMPLETED')).toBe(true);
+	});
+
+	it('freezes terminal states', () => {
+		expect(canTransition(SUPPORT_TRANSITIONS, 'COMPLETED', 'IN_PROGRESS')).toBe(false);
+		expect(canTransition(SUPPORT_TRANSITIONS, 'REJECTED', 'UNDER_REVIEW')).toBe(false);
+		expect(canTransition(SUPPORT_TRANSITIONS, 'SUBMITTED', 'ACCEPTED')).toBe(false);
+	});
+});
+
+describe('support permissions', () => {
+	const adminB: Actor = {
+		memberId: 'm-b',
+		eventId: 'e1',
+		divisionId: 'div-b',
+		systemRole: 'DIVISION_ADMIN',
+		name: 'Admin B'
+	};
+	const req = {
+		requestingDivisionId: 'div-a',
+		targetDivisionId: 'div-b',
+		requestedBy: 'm-c',
+		status: 'UNDER_REVIEW'
+	};
+	it('lets target division decide, requester only resubmit or cancel', () => {
+		expect(canAdvanceSupport(adminB, req, 'ACCEPTED')).toBe(true);
+		expect(canAdvanceSupport(adminB, req, 'REJECTED')).toBe(true);
+		expect(canAdvanceSupport(adminA, req, 'ACCEPTED')).toBe(false);
+		expect(canAdvanceSupport(adminA, req, 'CANCELLED')).toBe(true);
+		expect(canAdvanceSupport(mod, req, 'COMPLETED')).toBe(true);
+	});
+
+	it('lets committee filer resubmit and cancel own request only', () => {
+		expect(canAdvanceSupport(committee, req, 'UNDER_REVIEW')).toBe(true);
+		expect(canAdvanceSupport(committee, req, 'CANCELLED')).toBe(true);
+		expect(canAdvanceSupport(committee, req, 'ACCEPTED')).toBe(false);
+		expect(canAdvanceSupport(committee, { ...req, requestedBy: 'm-other' }, 'CANCELLED')).toBe(
+			false
+		);
 	});
 });
