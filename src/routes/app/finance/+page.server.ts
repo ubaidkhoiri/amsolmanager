@@ -34,6 +34,18 @@ function publicTransaction(t: typeof transactions.$inferSelect) {
 	};
 }
 
+type Db = ReturnType<typeof getDb>;
+
+// Driver neon-http tak dukung transaksi multi-statement, jadi tulis utama
+// dulu lalu audit. Audit gagal dicatat di log server, tulis utama tetap sah.
+// vibekit: tanpa atomicity, pindah ke driver Pool bila butuh garansi penuh.
+async function writeAudit(db: Db, entry: typeof auditLogs.$inferInsert): Promise<void> {
+	try {
+		await db.insert(auditLogs).values(entry);
+	} catch (err) {
+		console.error('audit gagal tersimpan', entry.action, entry.entityId, err);
+	}
+}
 export const load: PageServerLoad = async (event) => {
 	const actor = requireActor(event);
 	const db = getDb(event.platform?.env as Record<string, string | undefined> | undefined);
@@ -120,30 +132,28 @@ export const actions: Actions = {
 			divisionId,
 			date: transactionDate.toISOString()
 		};
-		await db.transaction(async (tx) => {
-			await tx.insert(transactions).values({
-				id,
-				eventId: actor.eventId,
-				divisionId,
-				type: type as 'INCOME' | 'EXPENSE',
-				amount: (cents / 100).toFixed(2),
-				category,
-				description,
-				transactionDate,
-				evidenceUrl,
-				recordedBy: actor.memberId
-			});
-			await tx.insert(auditLogs).values({
-				id: crypto.randomUUID(),
-				eventId: actor.eventId,
-				actorMemberId: actor.memberId,
-				action: 'TRANSACTION_CREATE',
-				entityType: 'transaction',
-				entityId: id,
-				beforeData: null,
-				afterData: after,
-				reason: null
-			});
+		await db.insert(transactions).values({
+			id,
+			eventId: actor.eventId,
+			divisionId,
+			type: type as 'INCOME' | 'EXPENSE',
+			amount: (cents / 100).toFixed(2),
+			category,
+			description,
+			transactionDate,
+			evidenceUrl,
+			recordedBy: actor.memberId
+		});
+		await writeAudit(db, {
+			id: crypto.randomUUID(),
+			eventId: actor.eventId,
+			actorMemberId: actor.memberId,
+			action: 'TRANSACTION_CREATE',
+			entityType: 'transaction',
+			entityId: id,
+			beforeData: null,
+			afterData: after,
+			reason: null
 		});
 		return { success: 'Transaksi dicatat.' };
 	},
@@ -165,22 +175,20 @@ export const actions: Actions = {
 		if (row.status !== 'ACTIVE') return fail(400, { error: 'Hanya transaksi aktif.' });
 		const before = publicTransaction(row);
 		const amount = (cents / 100).toFixed(2);
-		await db.transaction(async (tx) => {
-			await tx
-				.update(transactions)
-				.set({ amount, updatedAt: new Date() })
-				.where(eq(transactions.id, id));
-			await tx.insert(auditLogs).values({
-				id: crypto.randomUUID(),
-				eventId: actor.eventId,
-				actorMemberId: actor.memberId,
-				action: 'TRANSACTION_CORRECT',
-				entityType: 'transaction',
-				entityId: id,
-				beforeData: before,
-				afterData: { ...before, amount },
-				reason
-			});
+		await db
+			.update(transactions)
+			.set({ amount, updatedAt: new Date() })
+			.where(eq(transactions.id, id));
+		await writeAudit(db, {
+			id: crypto.randomUUID(),
+			eventId: actor.eventId,
+			actorMemberId: actor.memberId,
+			action: 'TRANSACTION_CORRECT',
+			entityType: 'transaction',
+			entityId: id,
+			beforeData: before,
+			afterData: { ...before, amount },
+			reason
 		});
 		return { success: 'Koreksi disimpan dengan jejak audit.' };
 	},
@@ -198,22 +206,20 @@ export const actions: Actions = {
 		});
 		if (!row) throw error(404, 'Transaksi tidak ada.');
 		if (row.status !== 'ACTIVE') return fail(400, { error: 'Sudah dibatalkan.' });
-		await db.transaction(async (tx) => {
-			await tx
-				.update(transactions)
-				.set({ status: 'VOIDED', updatedAt: new Date() })
-				.where(eq(transactions.id, id));
-			await tx.insert(auditLogs).values({
-				id: crypto.randomUUID(),
-				eventId: actor.eventId,
-				actorMemberId: actor.memberId,
-				action: 'TRANSACTION_VOID',
-				entityType: 'transaction',
-				entityId: id,
-				beforeData: publicTransaction(row),
-				afterData: null,
-				reason
-			});
+		await db
+			.update(transactions)
+			.set({ status: 'VOIDED', updatedAt: new Date() })
+			.where(eq(transactions.id, id));
+		await writeAudit(db, {
+			id: crypto.randomUUID(),
+			eventId: actor.eventId,
+			actorMemberId: actor.memberId,
+			action: 'TRANSACTION_VOID',
+			entityType: 'transaction',
+			entityId: id,
+			beforeData: publicTransaction(row),
+			afterData: null,
+			reason
 		});
 		return { success: 'Transaksi dibatalkan, riwayat tetap ada.' };
 	},
@@ -249,47 +255,43 @@ export const actions: Actions = {
 		const amount = (planned / 100).toFixed(2);
 		if (existing) {
 			const before = { plannedAmount: existing.plannedAmount, notes: existing.notes };
-			await db.transaction(async (tx) => {
-				await tx
-					.update(budgets)
-					.set({ plannedAmount: amount, notes, updatedAt: new Date() })
-					.where(eq(budgets.id, existing.id));
-				await tx.insert(auditLogs).values({
-					id: crypto.randomUUID(),
-					eventId: actor.eventId,
-					actorMemberId: actor.memberId,
-					action: 'BUDGET_SET',
-					entityType: 'budget',
-					entityId: existing.id,
-					beforeData: before,
-					afterData: { plannedAmount: amount, notes },
-					reason: null
-				});
-			});
-			return { success: 'Anggaran diperbarui.' };
-		}
-		const id = crypto.randomUUID();
-		await db.transaction(async (tx) => {
-			await tx.insert(budgets).values({
-				id,
-				eventId: actor.eventId,
-				divisionId,
-				category,
-				plannedAmount: amount,
-				notes,
-				createdBy: actor.memberId
-			});
-			await tx.insert(auditLogs).values({
+			await db
+				.update(budgets)
+				.set({ plannedAmount: amount, notes, updatedAt: new Date() })
+				.where(eq(budgets.id, existing.id));
+			await writeAudit(db, {
 				id: crypto.randomUUID(),
 				eventId: actor.eventId,
 				actorMemberId: actor.memberId,
 				action: 'BUDGET_SET',
 				entityType: 'budget',
-				entityId: id,
-				beforeData: null,
+				entityId: existing.id,
+				beforeData: before,
 				afterData: { plannedAmount: amount, notes },
 				reason: null
 			});
+			return { success: 'Anggaran diperbarui.' };
+		}
+		const id = crypto.randomUUID();
+		await db.insert(budgets).values({
+			id,
+			eventId: actor.eventId,
+			divisionId,
+			category,
+			plannedAmount: amount,
+			notes,
+			createdBy: actor.memberId
+		});
+		await writeAudit(db, {
+			id: crypto.randomUUID(),
+			eventId: actor.eventId,
+			actorMemberId: actor.memberId,
+			action: 'BUDGET_SET',
+			entityType: 'budget',
+			entityId: id,
+			beforeData: null,
+			afterData: { plannedAmount: amount, notes },
+			reason: null
 		});
 		return { success: 'Anggaran dibuat.' };
 	}
