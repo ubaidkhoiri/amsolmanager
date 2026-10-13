@@ -1,0 +1,2 @@
+ALTER TABLE "budgets" ADD CONSTRAINT "budgets_planned_non_negative" CHECK ("budgets"."planned_amount" >= 0);--> statement-breakpoint
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_amount_positive" CHECK ("transactions"."amount" > 0);

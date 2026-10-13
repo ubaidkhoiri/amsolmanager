@@ -47,7 +47,8 @@ export async function validateSessionToken(db: Db, rawToken: string): Promise<Ac
 		eventId: member.eventId,
 		divisionId: member.divisionId,
 		systemRole: member.systemRole,
-		name: member.name
+		name: member.name,
+		position: member.organizationalPosition
 	};
 }
 

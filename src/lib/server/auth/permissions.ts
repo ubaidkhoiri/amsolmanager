@@ -6,6 +6,18 @@ export interface Actor {
 	divisionId: string | null;
 	systemRole: SystemRole;
 	name: string;
+	position: string | null;
+}
+
+// Only MOD and members holding the Bendahara post write money. Everyone
+// active reads the ledger, so no read gate is needed here.
+export function canManageTransaction(actor: Actor): boolean {
+	if (actor.systemRole === 'MOD') return true;
+	return (actor.position ?? '').trim().toLowerCase() === 'bendahara';
+}
+
+export function canManageBudget(actor: Actor): boolean {
+	return actor.systemRole === 'MOD';
 }
 
 export function canManageMembers(actor: Actor): boolean {

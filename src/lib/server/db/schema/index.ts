@@ -15,3 +15,5 @@ export {
 	TIMELINE_CATEGORY_LABELS
 } from './timeline';
 export { publications, publicationStatusEnum } from './publications';
+export { budgets, transactions, transactionStatusEnum, transactionTypeEnum } from './finance';
+export { auditLogs, AUDIT_ACTIONS } from './audit';

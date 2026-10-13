@@ -44,6 +44,7 @@
 						<p class="mt-1 text-xs">Desain {p.design}, copy {p.copy}</p>
 						{#if p.publishedUrl}
 							<p class="mt-1 text-xs">
+								<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external post URL -->
 								<a class="underline" href={p.publishedUrl} target="_blank" rel="noreferrer"
 									>Lihat posting</a
 								>

@@ -42,12 +42,10 @@ if (liveCodes.length > 0) {
 
 let mods =
 	await sql`SELECT id, name FROM members WHERE event_id = ${eventId} AND system_role = 'MOD' AND status = 'ACTIVE'`;
-let memberId;
+let memberId = mods.length > 0 ? mods[0].id : randomUUID();
 if (mods.length > 0) {
-	memberId = mods[0].id;
 	console.log(`member MOD ada: ${mods[0].name}`);
 } else {
-	memberId = randomUUID();
 	await sql`INSERT INTO members (id, event_id, name, system_role, status) VALUES (${memberId}, ${eventId}, ${name}, 'MOD', 'ACTIVE')`;
 	console.log(`member MOD dibuat: ${name}`);
 }

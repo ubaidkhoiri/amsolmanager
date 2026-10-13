@@ -41,7 +41,8 @@ export async function verifyAccessCode(
 			eventId: member.eventId,
 			divisionId: member.divisionId,
 			systemRole: member.systemRole,
-			name: member.name
+			name: member.name,
+			position: member.organizationalPosition
 		}
 	};
 }

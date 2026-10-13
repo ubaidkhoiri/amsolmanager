@@ -36,6 +36,20 @@
       "when": 1791889207544,
       "tag": "0004_fair_daimon_hellstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791890099209,
+      "tag": "0005_overconfident_speed_demon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791890118901,
+      "tag": "0006_slippery_pet_avengers",
+      "breakpoints": true
     }
   ]
 }

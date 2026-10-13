@@ -25,21 +25,24 @@ const mod: Actor = {
 	eventId: 'e1',
 	divisionId: null,
 	systemRole: 'MOD',
-	name: 'Mod'
+	name: '',
+	position: null
 };
 const adminA: Actor = {
 	memberId: 'm-a',
 	eventId: 'e1',
 	divisionId: 'div-a',
 	systemRole: 'DIVISION_ADMIN',
-	name: 'Admin A'
+	name: '',
+	position: null
 };
 const committee: Actor = {
 	memberId: 'm-c',
 	eventId: 'e1',
 	divisionId: 'div-a',
 	systemRole: 'COMMITTEE',
-	name: 'Panitia'
+	name: '',
+	position: null
 };
 
 describe('meeting transitions', () => {
@@ -156,7 +159,8 @@ describe('support permissions', () => {
 		eventId: 'e1',
 		divisionId: 'div-b',
 		systemRole: 'DIVISION_ADMIN',
-		name: 'Admin B'
+		name: '',
+		position: null
 	};
 	const req = {
 		requestingDivisionId: 'div-a',
